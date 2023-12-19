@@ -17,6 +17,6 @@ Ce projet est une version simple du jeu Pokémon réalisée dans le cadre d'un c
 
 ## Remarque
 
-Ce projet a été réalisé dans un but pédagogique et représente une version simplifiée de l'univers Pokémon. L'interface utilisateur se limite au terminal pour des raisons d'apprentissage et de démonstration.
+Ce projet a été réalisé en cours dans un but pédagogique et représente une version simplifiée de l'univers Pokémon. L'interface utilisateur se limite au terminal pour des raisons d'apprentissage et de démonstration.
 
 
