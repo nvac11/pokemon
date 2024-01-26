@@ -1,22 +1,29 @@
 #include "combat.h"
 #include "PokemonTypes.h"
+#include "pokemon.h"
+#include "utils.h"
+#include "bestiaire.h"
 #include <cstring>
 #include <strings.h>
-int hash(const char *str) {
+#include <iostream>
+
+int hash_f(const char *str)
+{
   unsigned long hash = 5381;
   int c;
 
-  while (c = *str++) {
+  while (c = *str++){
     hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
   }
   return hash % 26;
 }
-bool contains(CombatHash *hashtable, CombatEspece *c) {
-  CombatEspece *element = get(hashtable, c->nature);
+
+bool contains(CombatHash* hashtable, CombatEspece* c) {
+  CombatEspece* element = get(hashtable, c->nature);
   return (element != nullptr);
 }
 
-const char *pokemonTypeToString(PokemonType t) {
+const char* pokemonTypeToString(PokemonType t) {
   if (t == Normal) {
     return "Normal";
   } else if (t == Fighting) {
@@ -55,93 +62,95 @@ const char *pokemonTypeToString(PokemonType t) {
     return "Fairy";
   }
 }
-CombatEspece *get(CombatHash *hashtable, const char *key) {
-  int index = hash(key);
-  CombatEspece *actualesp = hashtable->content[index];
-  while (actualesp != nullptr && strcmp(actualesp->nature, key) != 0) {
-    actualesp = actualesp->next;
+CombatEspece * get(CombatHash* hashtable, const char * key){
+  int index = hash_f(key);
+  CombatEspece * actualesp = hashtable->content[index];
+  while (actualesp != nullptr && strcmp(actualesp->nature, key) != 0){
+    actualesp = actualesp->next;  
   }
   return actualesp;
 }
 
 void insert(CombatEspece *c, CombatHash *hashtable) {
-  int index = hash(c->nature);
-  CombatEspece *esp = hashtable->content[index];
-  c->next = esp;
-  hashtable->content[index] = c;
+   int index = hash_f(c->nature);
+   CombatEspece * esp = hashtable->content[index];
+   c->next = esp;
+   hashtable->content[index] = c;
 }
 
-CombatHash *initCombatHash() {
-  CombatHash *hashtable = new CombatHash;
-  hashtable->size = 18;
-  // Initialisation
-  for (int k = 0; k < 26; k++) {
-    hashtable->content[k] = nullptr;
-  }
 
-  // Insertions successives
-  int i = -1;
-  CombatEspece *bug = new CombatEspece;
-  bug->nature = "Bug";
-  bug->next = nullptr;
-  for (i = 0; i < 5; i++) {
-    bug->strongAgainst[i] = nullptr;
-    bug->weakAgainst[i] = nullptr;
-  }
-  bug->strongAgainst[0] = "Dark";
-  bug->strongAgainst[1] = "Grass";
-  bug->strongAgainst[2] = "Psychic";
-  bug->weakAgainst[0] = "Fire";
-  bug->weakAgainst[1] = "Flying";
-  bug->weakAgainst[2] = "Rock";
-  insert(bug, hashtable);
+CombatHash* initCombatHash()
+{
+	CombatHash* hashtable = new CombatHash;
+	hashtable->size = 18;
+	// Initialisation
+	for (int k = 0; k < 26; k++)
+	{
+		hashtable->content[k] = nullptr; 
+	}
 
-  CombatEspece *dark = new CombatEspece;
-  dark->nature = "Dark";
-  dark->next = nullptr;
-  for (i = 0; i < 5; i++) {
-    dark->strongAgainst[i] = nullptr;
-    dark->weakAgainst[i] = nullptr;
-  }
-  dark->strongAgainst[0] = "Ghost";
-  dark->strongAgainst[1] = "Psychic";
-  dark->weakAgainst[0] = "Bug";
-  dark->weakAgainst[1] = "Fairy";
-  dark->weakAgainst[2] = "Fight";
-  insert(dark, hashtable);
+	// Insertions successives
+	int i = -1;
+	CombatEspece* bug = new CombatEspece;
+	bug->nature = "Bug";
+	bug->next = nullptr;
+	for (i = 0; i < 5; i++)
+	{
+		bug->strongAgainst[i] = nullptr;
+		bug->weakAgainst[i] = nullptr;
+	}
+	bug->strongAgainst[0] = "Dark";
+	bug->strongAgainst[1] = "Grass";
+	bug->strongAgainst[2] = "Psychic";
+	bug->weakAgainst[0] = "Fire";
+	bug->weakAgainst[1] = "Flying";
+	bug->weakAgainst[2] = "Rock";
+	insert(bug, hashtable);
 
-  CombatEspece *dragon = new CombatEspece;
-  dragon->nature = "Dragon";
-  dragon->next = nullptr;
-  for (i = 0; i < 5; i++) {
-    dragon->strongAgainst[i] = nullptr;
-    dragon->weakAgainst[i] = nullptr;
-  }
-  dragon->strongAgainst[0] = "Dragon";
-  dragon->weakAgainst[0] = "Dragon";
-  dragon->weakAgainst[1] = "Fairy";
-  dragon->weakAgainst[2] = "Ice";
-  insert(dragon, hashtable);
+	CombatEspece* dark = new CombatEspece;
+	dark->nature = "Dark";
+	dark->next = nullptr;
+	for (i = 0; i < 5; i++)
+	{
+		dark->strongAgainst[i] = nullptr;
+		dark->weakAgainst[i] = nullptr;
+	}
+	dark->strongAgainst[0] = "Ghost";
+	dark->strongAgainst[1] = "Psychic";
+	dark->weakAgainst[0] = "Bug";
+	dark->weakAgainst[1] = "Fairy";
+	dark->weakAgainst[2] = "Fight";
+	insert(dark, hashtable);
 
-  CombatEspece *electric = new CombatEspece;
-  electric->nature = "Electric";
-  electric->next = nullptr;
-  for (i = 0; i < 5; i++) {
-    electric->strongAgainst[i] = nullptr;
-    electric->weakAgainst[i] = nullptr;
-  }
-  electric->strongAgainst[0] = "Flying";
-  electric->strongAgainst[1] = "Water";
-  electric->weakAgainst[0] = "Ground";
-  insert(electric, hashtable);
+	CombatEspece* dragon = new CombatEspece;
+	dragon->nature = "Dragon";
+	dragon->next = nullptr;
+	for (i = 0; i < 5; i++)
+	{
+		dragon->strongAgainst[i] = nullptr;
+		dragon->weakAgainst[i] = nullptr;
+	}
+	dragon->strongAgainst[0] = "Dragon";
+	dragon->weakAgainst[0] = "Dragon";
+	dragon->weakAgainst[1] = "Fairy";
+	dragon->weakAgainst[2] = "Ice";
+	insert(dragon, hashtable);
 
-  CombatEspece *fairy = new CombatEspece;
+	CombatEspece* electric = new CombatEspece;
+	electric->nature = "Electric";
+	electric->next = nullptr;
+	for (i = 0; i < 5; i++)
+	{
+		electric->strongAgainst[i] = nullptr;
+		electric->weakAgainst[i] = nullptr;
+	}
+	electric->strongAgainst[0] = "Flying";
+	electric->strongAgainst[1] = "Water";
+	electric->weakAgainst[0] = "Ground";
+  
+  CombatEspece* fairy = new CombatEspece;
   fairy->nature = "Fairy";
-  fairy->next = nullptr;
-  for (i = 0; i < 5; i++) {
-    fairy->strongAgainst[i] = nullptr;
-    fairy->weakAgainst[i] = nullptr;
-  }
+  fairy->next = nullptr; 
   fairy->strongAgainst[0] = "Dark";
   fairy->strongAgainst[1] = "Dragon";
   fairy->strongAgainst[2] = "Fight";
@@ -270,84 +279,144 @@ CombatHash *initCombatHash() {
   }
   normal->weakAgainst[0] = "Fight";
   insert(normal, hashtable); // correction ici.
+	ice->strongAgainst[3] = "Ground";
+	ice->weakAgainst[0] = "Fight";
+	ice->weakAgainst[1] = "Fire";
+	ice->weakAgainst[2] = "Rock";
+	ice->weakAgainst[3] = "Steel";
+	insert(ice, hashtable);
 
-  CombatEspece *poison = new CombatEspece;
-  poison->nature = "Poison";
-  poison->next = nullptr;
-  for (i = 0; i < 5; i++) {
-    poison->strongAgainst[i] = nullptr;
-    poison->weakAgainst[i] = nullptr;
-  }
-  poison->strongAgainst[0] = "Fairy";
-  poison->strongAgainst[1] = "Grass";
-  poison->weakAgainst[0] = "Ground";
-  poison->weakAgainst[1] = "Psychic";
-  insert(poison, hashtable);
+	normal->nature = "Normal";
+	normal->next = nullptr;
+	for (i = 0; i < 5; i++)
+	{
+		normal->strongAgainst[i] = nullptr;
+		normal->weakAgainst[i] = nullptr;
+	}
+	normal->weakAgainst[0] = "Fight";
+	insert(normal, hashtable); // correction ici.
 
-  CombatEspece *psychic = new CombatEspece;
-  psychic->nature = "Psychic";
-  psychic->next = nullptr;
-  for (i = 0; i < 5; i++) {
-    psychic->strongAgainst[i] = nullptr;
-    psychic->weakAgainst[i] = nullptr;
-  }
-  psychic->strongAgainst[0] = "Fight";
-  psychic->strongAgainst[1] = "Poison";
-  psychic->weakAgainst[0] = "Bug";
-  psychic->weakAgainst[1] = "Dark";
-  psychic->weakAgainst[2] = "Ghost";
-  insert(psychic, hashtable);
+	CombatEspece* poison = new CombatEspece;
+	poison->nature = "Poison";
+	poison->next = nullptr;
+	for (i = 0; i < 5; i++)
+	{
+		poison->strongAgainst[i] = nullptr;
+		poison->weakAgainst[i] = nullptr;
+	}
+	poison->strongAgainst[0] = "Fairy";
+	poison->strongAgainst[1] = "Grass";
+	poison->weakAgainst[0] = "Ground";
+	poison->weakAgainst[1] = "Psychic";
+	insert(poison, hashtable);
 
-  CombatEspece *rock = new CombatEspece;
-  rock->nature = "Rock";
-  rock->next = nullptr;
-  for (i = 0; i < 5; i++) {
-    rock->strongAgainst[i] = nullptr;
-    rock->weakAgainst[i] = nullptr;
-  }
-  rock->strongAgainst[0] = "Bug";
-  rock->strongAgainst[1] = "Fire";
-  rock->strongAgainst[2] = "Flying";
-  rock->strongAgainst[3] = "Ice";
-  rock->weakAgainst[0] = "Fight";
-  rock->weakAgainst[1] = "Grass";
-  rock->weakAgainst[2] = "Ground";
-  rock->weakAgainst[3] = "Steel";
-  rock->weakAgainst[4] = "Water";
-  insert(rock, hashtable);
+	CombatEspece* psychic = new CombatEspece;
+	psychic->nature = "Psychic";
+	psychic->next = nullptr;
+	for (i = 0; i < 5; i++)
+	{
+		psychic->strongAgainst[i] = nullptr;
+		psychic->weakAgainst[i] = nullptr;
+	}
+	psychic->strongAgainst[0] = "Fight";
+	psychic->strongAgainst[1] = "Poison";
+	psychic->weakAgainst[0] = "Bug";
+	psychic->weakAgainst[1] = "Dark";
+	psychic->weakAgainst[2] = "Ghost";
+	insert(psychic, hashtable);
 
-  CombatEspece *steel = new CombatEspece;
-  steel->nature = "Steel";
-  steel->next = nullptr;
-  for (i = 0; i < 5; i++) {
-    steel->strongAgainst[i] = nullptr;
-    steel->weakAgainst[i] = nullptr;
-  }
-  steel->strongAgainst[0] = "Fairy";
-  steel->strongAgainst[1] = "Ice";
-  steel->strongAgainst[2] = "Rock";
-  steel->weakAgainst[0] = "Fight";
-  steel->weakAgainst[1] = "Fire";
-  steel->weakAgainst[2] = "Ground";
-  insert(steel, hashtable);
+	CombatEspece* rock = new CombatEspece;
+	rock->nature = "Rock";
+	rock->next = nullptr;
+	for (i = 0; i < 5; i++)
+	{
+		rock->strongAgainst[i] = nullptr;
+		rock->weakAgainst[i] = nullptr;
+	}
+	rock->strongAgainst[0] = "Bug";
+	rock->strongAgainst[1] = "Fire";
+	rock->strongAgainst[2] = "Flying";
+	rock->strongAgainst[3] = "Ice";
+	rock->weakAgainst[0] = "Fight";
+	rock->weakAgainst[1] = "Grass";
+	rock->weakAgainst[2] = "Ground";
+	rock->weakAgainst[3] = "Steel";
+	rock->weakAgainst[4] = "Water";
+	insert(rock, hashtable);
 
-  CombatEspece *water = new CombatEspece;
-  water->nature = "Water";
-  water->next = nullptr;
-  for (i = 0; i < 5; i++) {
-    water->strongAgainst[i] = nullptr;
-    water->weakAgainst[i] = nullptr;
-  }
-  water->strongAgainst[0] = "Fire";
-  water->strongAgainst[1] = "Ground";
-  water->strongAgainst[2] = "Rock";
-  water->weakAgainst[0] = "Electric";
-  water->weakAgainst[1] = "Grass";
-  insert(water, hashtable);
+	CombatEspece* steel = new CombatEspece;
+	steel->nature = "Steel";
+	steel->next = nullptr;
+	for (i = 0; i < 5; i++)
+	{
+		steel->strongAgainst[i] = nullptr;
+		steel->weakAgainst[i] = nullptr;
+	}
+	steel->strongAgainst[0] = "Fairy";
+	steel->strongAgainst[1] = "Ice";
+	steel->strongAgainst[2] = "Rock";
+	steel->weakAgainst[0] = "Fight";
+	steel->weakAgainst[1] = "Fire";
+	steel->weakAgainst[2] = "Ground";
+	insert(steel, hashtable);
 
-  return hashtable;
+	CombatEspece* water = new CombatEspece;
+	water->nature = "Water";
+	water->next = nullptr;
+	for (i = 0; i < 5; i++)
+	{
+		water->strongAgainst[i] = nullptr;
+		water->weakAgainst[i] = nullptr;
+	}
+	water->strongAgainst[0] = "Fire";
+	water->strongAgainst[1] = "Ground";
+	water->strongAgainst[2] = "Rock";
+	water->weakAgainst[0] = "Electric";
+	water->weakAgainst[1] = "Grass";
+	insert(water, hashtable);
+
+	return hashtable;
 }
 
-void combat(int id1, int id2, EspecePokemon bestiaire[]){
+void combat(int id1, int id2, Pokedex * pokedex, EspecePokemon bestiaire[150]){
+  CombatHash * hashtable = initCombatHash();
+  int number = random_at_most(1);
+  int first  = (1 - number) * id1 + number * id2;
+  int second = (1 - number) * id2 + number * id1;
+  int damage1 = 30;
+  int damage2 = 30;
 
-};
+  Pokemon p1 = pokedex->mesPokemons[first];
+  Pokemon p2 = pokedex->mesPokemons[second];
+  PokemonType p1data = lookupEspecePokemon(bestiaire, p1.nom).type;
+  PokemonType p2data = lookupEspecePokemon(bestiaire, p2.nom).type;
+  //cout << pokemonTypeToString(p1data) << endl;
+  
+  CombatEspece * esp1 = get(hashtable, pokemonTypeToString(p1data));
+  CombatEspece * esp2 = get(hashtable, pokemonTypeToString(p1data));
+  //cout << esp1->strongAgainst[0] << endl;
+
+  for (int i = 0; i < 5; i++) {
+    if (esp1->strongAgainst[i] != nullptr && esp2->strongAgainst[i] != nullptr) 
+    {
+      if(strcmp(esp1->strongAgainst[i], esp2->nature) == 0){
+        damage1 = 90; 
+      } else if (strcmp(esp2->strongAgainst[i], esp1->nature) == 0){
+        damage2 = 90;
+      }
+    }
+  } 
+  
+  
+   
+  while (p1.pv > 0 || p2.pv > 0) {
+    p2.pv -= damage1;
+    p1.pv -= damage2;
+  } 
+  if (p2.pv <= 0){
+    cout << "vainqueur est " << p1.nom << "!" << endl;
+  } else {
+    cout << "vainqueur est " << p2.nom << "!" << endl;
+  }
+
+}

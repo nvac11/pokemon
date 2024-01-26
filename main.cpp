@@ -204,8 +204,9 @@ int main(int argc, const char *argv[]) {
       do {
         cin >> id1;
         cin >> id2;
-      } while (id1 >= 150 && id1 < 0 && id2 >= 150 && id2 < 0);
-      // combat(id1 , id2);
+      } while (id1 >= 150 || id1 < 0 || id2 >= 150 || id2 < 0);
+      combat(id1, id2, pokedex, bestiaire);
+      cout << "end of combat" << endl;
       break;
     case 6:
       afficherHistorique(historique);
